@@ -11,6 +11,7 @@ const Header = () => {
       <nav className="header-nav">
         <Link to="/library" className="nav-link">Library</Link>
         <Link to="/tests" className="nav-link">Mock Tests</Link>
+        <Link to="/add" className="btn-primary" style={{ marginRight: '1rem', textDecoration: 'none' }}>+ Add Material</Link>
         <button className="btn-primary">Login</button>
       </nav>
     </header>
