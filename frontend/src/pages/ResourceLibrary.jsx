@@ -61,6 +61,7 @@ const ResourceLibrary = () => {
               type={mat.type || (mat.fileUrl && mat.fileUrl.endsWith('.mp4') ? 'video' : 'pdf')}
               author={mat.uploadedBy?.name || 'Admin User'}
               date={new Date(mat.createdAt).toLocaleDateString() || 'Recently'}
+              fileUrl={mat.fileUrl}
             />
           ))}
         </div>

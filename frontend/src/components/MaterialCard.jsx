@@ -1,7 +1,7 @@
 import React from 'react';
 import './MaterialCard.css';
 
-const MaterialCard = ({ title, description, type, author, date }) => {
+const MaterialCard = ({ title, description, type, author, date, fileUrl }) => {
   // Determine icon based on file type
   const getIcon = () => {
     switch (type?.toLowerCase()) {
@@ -28,7 +28,11 @@ const MaterialCard = ({ title, description, type, author, date }) => {
       
       <div className="card-footer">
         <span className="card-tag">{type?.toUpperCase() || 'DOCUMENT'}</span>
-        <button className="btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>View</button>
+        {fileUrl ? (
+          <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>View</a>
+        ) : (
+          <button className="btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }} disabled>View</button>
+        )}
       </div>
     </div>
   );
