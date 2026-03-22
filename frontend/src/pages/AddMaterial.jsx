@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { createMaterial } from '../services/materialService';
+import { createMaterial, uploadFile } from '../services/materialService';
 import './AddMaterial.css';
 
 const AddMaterial = () => {
@@ -9,9 +9,9 @@ const AddMaterial = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    fileUrl: '',
     type: 'pdf'
   });
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -21,14 +21,25 @@ const AddMaterial = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!file) {
+      return setError('Please select a file to upload.');
+    }
+
     try {
       setLoading(true);
       setError(null);
-      await createMaterial(formData);
+      
+      // 1. Upload the file to S3
+      const uploadResponse = await uploadFile(file);
+      const fileUrl = uploadResponse.fileUrl;
+
+      // 2. Create the material document in the DB
+      await createMaterial({ ...formData, fileUrl });
       navigate('/');
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Failed to add material');
+      setError(err.response?.data?.message || 'Failed to upload material');
     } finally {
       setLoading(false);
     }
@@ -58,8 +69,13 @@ const AddMaterial = () => {
             </div>
 
             <div className="form-group">
-              <label>File URL</label>
-              <input type="url" name="fileUrl" required value={formData.fileUrl} onChange={handleChange} placeholder="https://..." />
+              <label>Resource File</label>
+              <input 
+                type="file" 
+                required 
+                onChange={(e) => setFile(e.target.files[0])} 
+                accept=".pdf,.doc,.docx,.jpg,.png,.mp4" 
+              />
             </div>
 
             <div className="form-group">
@@ -73,7 +89,7 @@ const AddMaterial = () => {
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Material'}
+              {loading ? 'Uploading...' : 'Add Material'}
             </button>
           </form>
         </div>
