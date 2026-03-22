@@ -1,5 +1,5 @@
 # Stage 1: Build the React Application
-FROM node:18-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
@@ -13,7 +13,7 @@ COPY frontend ./
 RUN npm run build
 
 # Stage 2: Setup the Node.js Backend & Serve Frontend
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /app/backend
 
