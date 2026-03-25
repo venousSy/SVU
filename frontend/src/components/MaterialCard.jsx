@@ -29,9 +29,9 @@ const MaterialCard = ({ title, description, type, author, date, fileUrl }) => {
       <div className="card-footer">
         <span className="card-tag">{type?.toUpperCase() || 'DOCUMENT'}</span>
         {fileUrl ? (
-          <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>View</a>
+          <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: 'var(--spacing-1) var(--spacing-3)', fontSize: 'var(--font-size-sm)', textDecoration: 'none', display: 'inline-block', textAlign: 'center' }}>View</a>
         ) : (
-          <button className="btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }} disabled>View</button>
+          <button className="btn-primary" style={{ padding: 'var(--spacing-1) var(--spacing-3)', fontSize: 'var(--font-size-sm)' }} disabled>View</button>
         )}
       </div>
     </div>
