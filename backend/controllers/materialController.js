@@ -1,4 +1,10 @@
 const Material = require('../models/Material');
+const pdfService = require('../services/pdfService');
+const aiService = require('../services/aiService');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 // @desc    Get all materials, with optional search query
 // @route   GET /api/materials
@@ -48,7 +54,65 @@ const createMaterial = async (req, res) => {
   }
 };
 
+const extractText = async (req, res) => {
+  try {
+    const material = await Material.findById(req.params.id);
+
+    if (!material) {
+      return res.status(404).json({ message: 'Material not found' });
+    }
+
+    const { fileUrl } = material;
+    let localFilePath = fileUrl;
+
+    // If fileUrl is a remote URL, download it to a temp file
+    if (fileUrl.startsWith('http')) {
+      const response = await axios({
+        url: fileUrl,
+        method: 'GET',
+        responseType: 'stream',
+      });
+
+      const tempFilePath = path.join(os.tmpdir(), `material-${material._id}.pdf`);
+      const writer = fs.createWriteStream(tempFilePath);
+
+      response.data.pipe(writer);
+
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+
+      localFilePath = tempFilePath;
+    } else if (!path.isAbsolute(fileUrl)) {
+      // If it's a relative path, resolve it
+      localFilePath = path.resolve(process.cwd(), fileUrl);
+    }
+
+    // Call the extraction service
+    const extractedText = await pdfService.extractTextFromPDF(localFilePath);
+
+    // Call the AI generation service
+    const generatedTest = await aiService.generateTestFromText(extractedText);
+
+    // Clean up temp file if it was downloaded
+    if (fileUrl.startsWith('http') && fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }
+
+    res.json({
+      message: 'Test generated successfully',
+      extraction: extractedText,
+      test: generatedTest,
+    });
+  } catch (error) {
+    console.error('Generation Error:', error);
+    res.status(500).json({ message: 'Error generating test from PDF', error: error.message });
+  }
+};
+
 module.exports = {
   getMaterials,
   createMaterial,
+  extractText,
 };

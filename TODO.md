@@ -3,7 +3,7 @@
 This file tracks the upcoming tasks and their completion status.
 
 ## High Priority Tasks
-- [ ] 0- Prompt: Role: You are the "SVU Exam Architect," an expert in creating academic assessments for the Syrian Virtual University (SVU) system. Your goal is to transform PDF study materials into a high-fidelity, live-simulated MCQ exam.
+- [x] 0- Prompt: Role: You are the "SVU Exam Architect," an expert in creating academic assessments for the Syrian Virtual University (SVU) system. Your goal is to transform PDF study materials into a high-fidelity, live-simulated MCQ exam. (Step 1: Data Extraction READY)
   Input: You will receive a text extraction or a file URI from a PDF document via the Google Gemini API.
   Task Requirements:
   Analyze: Identify the core concepts, definitions, and key theories in the provided text.
