@@ -61,18 +61,42 @@ ${text}
 
     } catch (error) {
       lastError = error;
-      // If it's a 404 (Model not found), try the next one
+      // If it's a 404, try the next one in the loop
       if (error.status === 404 || error.message?.includes('404') || error.message?.includes('not found')) {
-        console.warn(`[aiService] Model ${modelName} not found (404). Trying next...`);
+        console.warn(`[aiService] SDK Model ${modelName} not found (404). Trying next...`);
         continue;
       }
-      // If it's a different error (like 429 or auth), break early
       console.error(`[aiService] Permanent Error with ${modelName}:`, error.message);
       break;
     }
   }
 
-  throw new Error(`AI Generation failed after trying multiple models. Last error: ${lastError?.message}`);
+  // LAST RESORT: Direct REST call to bypass SDK
+  console.log("[aiService] All models 404ed in SDK. Attempting last-resort direct REST call...");
+  try {
+    const axios = require('axios');
+    const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    
+    const restResponse = await axios.post(restUrl, {
+      contents: [{ parts: [{ text: `Generate a 10 question MCQ test in JSON based on this text:\n\n${text}` }] }]
+    }, { timeout: 30000 });
+
+    if (restResponse.data && restResponse.data.candidates) {
+      let restText = restResponse.data.candidates[0].content.parts[0].text.trim();
+      if (restText.startsWith('```')) {
+        restText = restText.replace(/^```json/, '').replace(/```$/, '').trim();
+      }
+      console.log("[aiService] Direct REST call SUCCEEDED!");
+      return JSON.parse(restText);
+    }
+  } catch (restError) {
+    console.error("[aiService] Direct REST call also FAILED:", restError.response?.status || restError.message);
+    if (restError.response && restError.response.data) {
+        console.error("[aiService] REST Error Details:", JSON.stringify(restError.response.data));
+    }
+  }
+
+  throw new Error(`AI Generation failed (SDK & REST). Last error: ${lastError?.message}`);
 };
 
 module.exports = { generateTestFromText };
