@@ -89,14 +89,18 @@ const extractText = async (req, res) => {
       localFilePath = path.resolve(process.cwd(), fileUrl);
     }
 
-    // Call the extraction service
+    console.log(`[extractText] Starting extraction for material: ${material._id}`);
     const extractedText = await pdfService.extractTextFromPDF(localFilePath);
+    console.log(`[extractText] Extraction successful. Length: ${extractedText?.length || 0}`);
 
+    console.log(`[extractText] Sending text to AI service...`);
     // Call the AI generation service
     const generatedTest = await aiService.generateTestFromText(extractedText);
+    console.log(`[extractText] AI generation successful.`);
 
     // Clean up temp file if it was downloaded
     if (fileUrl.startsWith('http') && fs.existsSync(localFilePath)) {
+      console.log(`[extractText] Removing temp file: ${localFilePath}`);
       fs.unlinkSync(localFilePath);
     }
 
@@ -106,7 +110,7 @@ const extractText = async (req, res) => {
       test: generatedTest,
     });
   } catch (error) {
-    console.error('Generation Error:', error);
+    console.error('Generation Error Detail:', error);
     res.status(500).json({ message: 'Error generating test from PDF', error: error.message });
   }
 };

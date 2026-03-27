@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 import './MaterialCard.css';
 
 const MaterialCard = ({ id, title, description, type, author, date, fileUrl, onTestGenerated }) => {
@@ -20,7 +20,7 @@ const MaterialCard = ({ id, title, description, type, author, date, fileUrl, onT
     setIsGenerating(true);
     
     try {
-      const response = await axios.post(`http://localhost:5000/api/materials/${id}/generate-test`);
+      const response = await api.post(`/materials/${id}/generate-test`);
       if (response.data && response.data.test) {
         onTestGenerated(response.data.test);
       }
