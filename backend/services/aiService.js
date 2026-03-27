@@ -7,7 +7,11 @@ const genAI = new GoogleGenerativeAI(process.env.GENAI_API_KEY);
 
 const generateTestFromText = async (text) => {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Use stable v1 API and explicitly name the model
+    const model = genAI.getGenerativeModel(
+      { model: "gemini-1.5-flash" },
+      { apiVersion: 'v1' }
+    );
 
     const prompt = `
 Role: You are an Academic Assessment Expert for the Syrian Virtual University (SVU) Computer Science programs.
