@@ -1,11 +1,20 @@
 const fs = require('fs');
-const pdf = require('pdf-parse');
+const pdfParse = require('pdf-parse');
 
 const extractTextFromPDF = async (filePath) => {
   try {
-    console.log(`[pdfService] Extracting text from: ${filePath} using pdf-parse`);
+    console.log(`[pdfService] Extracting text from: ${filePath}`);
     const dataBuffer = fs.readFileSync(filePath);
-    const data = await pdf(dataBuffer);
+    
+    // Handle different export styles of pdf-parse
+    const parseFunction = typeof pdfParse === 'function' ? pdfParse : pdfParse.default;
+    
+    if (typeof parseFunction !== 'function') {
+      console.error('[pdfService] pdf-parse export is not a function:', typeof pdfParse);
+      throw new Error('pdf-parse library loaded incorrectly');
+    }
+
+    const data = await parseFunction(dataBuffer);
     
     // Heuristics to clean up text (Remove headers/footers/page numbers)
     const lines = data.text.split('\n');
