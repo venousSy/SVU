@@ -6,19 +6,28 @@ dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GENAI_API_KEY);
 
 const generateTestFromText = async (text) => {
-  if (!process.env.GENAI_API_KEY) {
-    console.error("AI Service Error: GENAI_API_KEY is not defined.");
+  const rawApiKey = process.env.GENAI_API_KEY;
+  if (!rawApiKey) {
+    console.error("AI Service Error: GENAI_API_KEY is missing from process.env");
     throw new Error("Missing Gemini API Key. Please check Railway variables.");
   }
 
-  // List of models to try in order of preference
+  const apiKey = rawApiKey.trim();
+  // Diagnostic: Check API Key length and mask (first 4, last 4)
+  const maskedKey = apiKey.substring(0, 4) + "..." + apiKey.substring(apiKey.length - 4);
+  console.log(`[aiService] Debug: Using API Key (Masked: ${maskedKey}, Length: ${apiKey.length})`);
+
+  // Refresh genAI instance with trimmed key to be safe
+  const localGenAI = new GoogleGenerativeAI(apiKey);
+
   const modelsToTry = [
-    "gemini-1.5-flash-latest",
     "gemini-1.5-flash",
-    "gemini-1.5-flash-001",
-    "gemini-1.5-flash-002",
+    "gemini-1.5-flash-latest",
+    "models/gemini-1.5-flash",
     "gemini-1.5-pro",
-    "gemini-pro"
+    "models/gemini-1.5-pro",
+    "gemini-pro",
+    "models/gemini-pro"
   ];
 
   let lastError = null;
@@ -26,7 +35,7 @@ const generateTestFromText = async (text) => {
   for (const modelName of modelsToTry) {
     try {
       console.log(`[aiService] Attempting generation with model: ${modelName}`);
-      const model = genAI.getGenerativeModel({ model: modelName });
+      const model = localGenAI.getGenerativeModel({ model: modelName });
 
       const prompt = `
 Role: You are an Academic Assessment Expert for the Syrian Virtual University (SVU) Computer Science programs.
