@@ -20,6 +20,25 @@ const generateTestFromText = async (text) => {
   // Refresh genAI instance with trimmed key to be safe
   const localGenAI = new GoogleGenerativeAI(apiKey);
 
+  // PRE-FLIGHT DIAGNOSTIC: List all models this key can see
+  try {
+    const axios = require('axios');
+    console.log("[aiService] Diagnostic: Attempting to list all models available to this key...");
+    const listUrl = `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`;
+    const listResponse = await axios.get(listUrl);
+    if (listResponse.data && listResponse.data.models) {
+      const modelNames = listResponse.data.models.map(m => m.name.replace('models/', ''));
+      console.log(`[aiService] Diagnostic: SUCCESS. I can see these models: ${modelNames.join(', ')}`);
+    } else {
+      console.warn("[aiService] Diagnostic: No models returned from the API.");
+    }
+  } catch (diagError) {
+    console.error("[aiService] Diagnostic Model Listing FAILED:", diagError.response?.status || diagError.message);
+    if (diagError.response && diagError.response.data) {
+       console.error("[aiService] Diagnostic Error Data:", JSON.stringify(diagError.response.data));
+    }
+  }
+
   const modelsToTry = [
     "gemini-1.5-flash",
     "gemini-1.5-flash-latest",
