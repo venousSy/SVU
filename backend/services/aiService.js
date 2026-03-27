@@ -7,67 +7,63 @@ const genAI = new GoogleGenerativeAI(process.env.GENAI_API_KEY);
 
 const generateTestFromText = async (text) => {
   if (!process.env.GENAI_API_KEY) {
-    console.error("AI Service Error: GENAI_API_KEY is not defined in environment variables.");
-    throw new Error("Missing Gemini API Key. Please check Railway environment variables.");
+    console.error("AI Service Error: GENAI_API_KEY is not defined.");
+    throw new Error("Missing Gemini API Key. Please check Railway variables.");
   }
 
-  try {
-    // Use gemini-1.5-flash-latest instead
-    const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash-latest" }
-    );
+  // List of models to try in order of preference
+  const modelsToTry = [
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-001",
+    "gemini-1.5-flash-002",
+    "gemini-1.5-pro",
+    "gemini-pro"
+  ];
 
-    const prompt = `
+  let lastError = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      console.log(`[aiService] Attempting generation with model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+
+      const prompt = `
 Role: You are an Academic Assessment Expert for the Syrian Virtual University (SVU) Computer Science programs.
-
-Objective: Convert the provided Markdown text (extracted from study materials) into a standardized Multiple Choice Question (MCQ) test.
-
-Standardized Constraints (SVU Style):
-1. Question Type: 100% Multiple Choice Questions (MCQs).
-2. Options: Each question must have exactly 4 options (A, B, C, D).
-3. Distractors: Follow "Millman’s Criteria"—distractors must be plausible, related to the topic, and approximately the same length as the correct answer. Avoid "All of the above" or "None of the above" unless necessary.
-4. Difficulty Distribution:
-   - 30% Knowledge (Definitions, basic facts).
-   - 50% Understanding (Interpreting concepts, explaining "why").
-   - 20% Application (Problem-solving, code analysis, or scenario-based).
-5. Language: Use technical English (standard for SVU Computer Science courses), ensuring terminology matches the provided text exactly.
-
-Output Format (JSON): Return the test in a structured JSON format. 
-Do not include any conversational filler, markdown formatting blocks (like \`\`\`json), or explanations outside the JSON object.
-
-JSON Schema:
-{
-  "test_metadata": { "subject": "Extract from text", "total_questions": 10 },
-  "questions": [
-    {
-      "id": 1,
-      "question_text": "...",
-      "options": { "A": "...", "B": "...", "C": "...", "D": "..." },
-      "correct_answer": "A",
-      "explanation": "...",
-      "difficulty": "Knowledge"
-    }
-  ]
-}
+Objective: Convert the provided Markdown text into a standardized MCQ test in JSON.
+Language: English.
+Constraints: 10 questions, 4 options (A, B, C, D), correct_answer, explanation, difficulty.
+JSON Only. No markdown blocks.
 
 Input Text:
 ${text}
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let responseText = response.text().trim();
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      let responseText = response.text().trim();
 
-    // Remove markdown code blocks if the model included them despite instructions
-    if (responseText.startsWith('```')) {
-      responseText = responseText.replace(/^```json/, '').replace(/```$/, '').trim();
+      if (responseText.startsWith('```')) {
+        responseText = responseText.replace(/^```json/, '').replace(/```$/, '').trim();
+      }
+
+      console.log(`[aiService] Success with model: ${modelName}`);
+      return JSON.parse(responseText);
+
+    } catch (error) {
+      lastError = error;
+      // If it's a 404 (Model not found), try the next one
+      if (error.status === 404 || error.message?.includes('404') || error.message?.includes('not found')) {
+        console.warn(`[aiService] Model ${modelName} not found (404). Trying next...`);
+        continue;
+      }
+      // If it's a different error (like 429 or auth), break early
+      console.error(`[aiService] Permanent Error with ${modelName}:`, error.message);
+      break;
     }
-
-    return JSON.parse(responseText);
-  } catch (error) {
-    console.error("AI Generation Error:", error);
-    throw new Error(`Failed to generate test: ${error.message}`);
   }
+
+  throw new Error(`AI Generation failed after trying multiple models. Last error: ${lastError?.message}`);
 };
 
 module.exports = { generateTestFromText };
