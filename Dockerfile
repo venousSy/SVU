@@ -15,8 +15,15 @@ RUN npm run build
 # Stage 2: Setup the Node.js Backend & Serve Frontend
 FROM node:22-alpine
 
-# Install Python and build dependencies
-RUN apk add --no-cache python3 py3-pip build-base python3-dev
+# Install Python, Java, and build dependencies
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    build-base \
+    python3-dev \
+    openjdk17-jre-headless \
+    poppler-utils \
+    libmagic
 
 WORKDIR /app/backend
 
