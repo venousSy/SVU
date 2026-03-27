@@ -6,11 +6,15 @@ dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GENAI_API_KEY);
 
 const generateTestFromText = async (text) => {
+  if (!process.env.GENAI_API_KEY) {
+    console.error("AI Service Error: GENAI_API_KEY is not defined in environment variables.");
+    throw new Error("Missing Gemini API Key. Please check Railway environment variables.");
+  }
+
   try {
-    // Use stable v1 API and explicitly name the model
+    // Use gemini-1.5-flash-latest instead
     const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash" },
-      { apiVersion: 'v1' }
+      { model: "gemini-1.5-flash-latest" }
     );
 
     const prompt = `
