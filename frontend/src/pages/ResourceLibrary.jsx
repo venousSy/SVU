@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import SearchBar from '../components/SearchBar';
 import MaterialCard from '../components/MaterialCard';
+import ExamRunner from '../components/ExamRunner';
 import { fetchMaterials } from '../services/materialService';
 import './ResourceLibrary.css';
 
@@ -9,6 +10,7 @@ const ResourceLibrary = () => {
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTest, setActiveTest] = useState(null);
 
   useEffect(() => {
     loadMaterials();
@@ -43,7 +45,18 @@ const ResourceLibrary = () => {
 
       <SearchBar onSearch={handleSearch} />
       
-      {loading ? (
+      {activeTest ? (
+        <div style={{ marginTop: '2rem' }}>
+          <button 
+            className="btn-secondary" 
+            style={{ marginBottom: '1rem', marginLeft: 'auto', display: 'block' }}
+            onClick={() => setActiveTest(null)}
+          >
+            ← Back to Library
+          </button>
+          <ExamRunner test={activeTest} timeLimitMinutes={15} />
+        </div>
+      ) : loading ? (
         <div className="empty-state glass-panel">
           <p>Loading database resources...</p>
         </div>
@@ -56,12 +69,14 @@ const ResourceLibrary = () => {
           {materials.map((mat) => (
             <MaterialCard
               key={mat._id}
+              id={mat._id}
               title={mat.title}
               description={mat.description}
               type={mat.type || (mat.fileUrl && mat.fileUrl.endsWith('.mp4') ? 'video' : 'pdf')}
               author={mat.uploadedBy?.name || 'Admin User'}
               date={new Date(mat.createdAt).toLocaleDateString() || 'Recently'}
               fileUrl={mat.fileUrl}
+              onTestGenerated={(test) => setActiveTest(test)}
             />
           ))}
         </div>

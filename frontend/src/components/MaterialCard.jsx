@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './MaterialCard.css';
 
-const MaterialCard = ({ id, title, description, type, author, date, fileUrl }) => {
+const MaterialCard = ({ id, title, description, type, author, date, fileUrl, onTestGenerated }) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Determine icon based on file type
@@ -15,17 +16,20 @@ const MaterialCard = ({ id, title, description, type, author, date, fileUrl }) =
   };
 
   const handleCreateTest = async (e) => {
-    e.stopPropagation(); // Avoid card click if card click is added later
+    e.stopPropagation();
     setIsGenerating(true);
     
-    // Placeholder for backend call
-    console.log(`Generating test for PDF ID: ${id}`);
-    
-    // Simulate delay
-    setTimeout(() => {
+    try {
+      const response = await axios.post(`http://localhost:5000/api/materials/${id}/generate-test`);
+      if (response.data && response.data.test) {
+        onTestGenerated(response.data.test);
+      }
+    } catch (err) {
+      console.error('Error generating test:', err);
+      alert('Failed to generate test. Please ensure the backend is running and the PDF is accessible.');
+    } finally {
       setIsGenerating(false);
-      // alert('Test generation triggered! (Backend integration coming soon)');
-    }, 2000);
+    }
   };
 
   return (
