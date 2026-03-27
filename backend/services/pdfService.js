@@ -6,7 +6,7 @@ const extractTextFromPDF = (filePath) => {
     const pythonScriptPath = path.join(__dirname, '../scripts/extract_pdf.py');
     
     // Call Python script with the file path as an argument
-    const pythonProcess = spawn('python', [pythonScriptPath, filePath]);
+    const pythonProcess = spawn('python3', [pythonScriptPath, filePath]);
 
     let dataString = '';
     let errorString = '';

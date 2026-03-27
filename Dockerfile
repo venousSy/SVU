@@ -15,11 +15,22 @@ RUN npm run build
 # Stage 2: Setup the Node.js Backend & Serve Frontend
 FROM node:22-alpine
 
+# Install Python and build dependencies
+RUN apk add --no-cache python3 py3-pip build-base python3-dev
+
 WORKDIR /app/backend
+
+# Create and activate virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Install backend dependencies
 COPY backend/package*.json ./
 RUN npm install --production
+
+# Copy backend requirements and install them
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source code
 COPY backend ./
