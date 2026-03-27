@@ -22,7 +22,7 @@ WORKDIR /app/backend
 
 # Install backend dependencies
 COPY backend/package*.json ./
-RUN npm install --production
+RUN npm install --production && npm install pdf-parse@1.1.1
 
 # Copy backend source code
 COPY backend ./
