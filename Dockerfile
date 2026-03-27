@@ -12,8 +12,11 @@ RUN npm install
 COPY frontend ./
 RUN npm run build
 
-# Stage 2: Setup the Node.js Backend & Serve Frontend
+# Stage 2: Final Production Image
 FROM node:22-alpine
+
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates
 
 WORKDIR /app/backend
 

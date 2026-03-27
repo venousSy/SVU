@@ -67,24 +67,42 @@ const extractText = async (req, res) => {
 
     // If fileUrl is a remote URL, download it to a temp file
     if (fileUrl.startsWith('http')) {
-      const response = await axios({
-        url: fileUrl,
-        method: 'GET',
-        responseType: 'stream',
-      });
+      console.log(`[extractText] Downloading remote PDF: ${fileUrl}`);
+      try {
+        const response = await axios({
+          url: fileUrl,
+          method: 'GET',
+          responseType: 'stream',
+          timeout: 10000, 
+        });
 
-      const tempFilePath = path.join(os.tmpdir(), `material-${material._id}.pdf`);
-      const writer = fs.createWriteStream(tempFilePath);
+        const tempFilePath = path.join(os.tmpdir(), `material-${material._id}.pdf`);
+        const writer = fs.createWriteStream(tempFilePath);
+        response.data.pipe(writer);
 
-      response.data.pipe(writer);
+        await new Promise((resolve, reject) => {
+          writer.on('finish', resolve);
+          writer.on('error', (err) => {
+            console.error(`[extractText] WriteStream error for ${fileUrl}:`, err.message);
+            reject(err);
+          });
+          response.data.on('error', (err) => {
+            console.error(`[extractText] Axios stream error for ${fileUrl}:`, err.message);
+            reject(err);
+          });
+        });
 
-      await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
-
-      localFilePath = tempFilePath;
-    } else if (!path.isAbsolute(fileUrl)) {
+        localFilePath = tempFilePath;
+        console.log(`[extractText] Successfully downloaded PDF to: ${localFilePath}`);
+      } catch (error) {
+        console.error(`[extractText] Failed to download PDF from ${fileUrl}:`, error.message);
+        if (error.response) {
+          console.error(`[extractText] HTTP Status: ${error.response.status}`);
+        }
+        throw new Error(`PDF Download Error: Could not fetch from S3/Remote URL. (Status: ${error.response?.status || 'Unknown'})`);
+      }
+    }
+ else if (!path.isAbsolute(fileUrl)) {
       // If it's a relative path, resolve it
       localFilePath = path.resolve(process.cwd(), fileUrl);
     }
