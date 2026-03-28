@@ -40,13 +40,13 @@ const generateTestFromText = async (text) => {
   }
 
   const modelsToTry = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.5-pro",
+    "gemini-2.0-pro",
     "gemini-1.5-flash",
-    "gemini-1.5-flash-latest",
-    "models/gemini-1.5-flash",
     "gemini-1.5-pro",
-    "models/gemini-1.5-pro",
-    "gemini-pro",
-    "models/gemini-pro"
+    "gemini-pro"
   ];
 
   let lastError = null;
@@ -80,38 +80,37 @@ ${text}
 
     } catch (error) {
       lastError = error;
-      // If it's a 404, try the next one in the loop
-      if (error.status === 404 || error.message?.includes('404') || error.message?.includes('not found')) {
-        console.warn(`[aiService] SDK Model ${modelName} not found (404). Trying next...`);
-        continue;
-      }
-      console.error(`[aiService] Permanent Error with ${modelName}:`, error.message);
-      break;
+      console.warn(`[aiService] SDK Model ${modelName} failed: ${error.message}. Trying next...`);
+      continue;
     }
   }
 
   // LAST RESORT: Direct REST call to bypass SDK
-  console.log("[aiService] All models 404ed in SDK. Attempting last-resort direct REST call...");
-  try {
-    const axios = require('axios');
-    const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    
-    const restResponse = await axios.post(restUrl, {
-      contents: [{ parts: [{ text: `Generate a 10 question MCQ test in JSON based on this text:\n\n${text}` }] }]
-    }, { timeout: 30000 });
+  console.log("[aiService] All SDK models failed. Attempting last-resort direct REST call...");
+  const restFallbackModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  for (const fallbackModel of restFallbackModels) {
+    try {
+      const axios = require('axios');
+      const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${fallbackModel}:generateContent?key=${apiKey}`;
+      
+      const restResponse = await axios.post(restUrl, {
+        contents: [{ parts: [{ text: `Generate a 10 question MCQ test in JSON based on this text:\n\n${text}` }] }]
+      }, { timeout: 30000 });
 
-    if (restResponse.data && restResponse.data.candidates) {
-      let restText = restResponse.data.candidates[0].content.parts[0].text.trim();
-      if (restText.startsWith('```')) {
-        restText = restText.replace(/^```json/, '').replace(/```$/, '').trim();
+      if (restResponse.data && restResponse.data.candidates) {
+        let restText = restResponse.data.candidates[0].content.parts[0].text.trim();
+        if (restText.startsWith('```')) {
+          restText = restText.replace(/^```json/, '').replace(/```$/, '').trim();
+        }
+        console.log(`[aiService] Direct REST call SUCCEEDED with ${fallbackModel}!`);
+        return JSON.parse(restText);
       }
-      console.log("[aiService] Direct REST call SUCCEEDED!");
-      return JSON.parse(restText);
-    }
-  } catch (restError) {
-    console.error("[aiService] Direct REST call also FAILED:", restError.response?.status || restError.message);
-    if (restError.response && restError.response.data) {
-        console.error("[aiService] REST Error Details:", JSON.stringify(restError.response.data));
+    } catch (restError) {
+      console.error(`[aiService] Direct REST call FAILED for ${fallbackModel}:`, restError.response?.status || restError.message);
+      if (restError.response && restError.response.data) {
+          console.error("[aiService] REST Error Details:", JSON.stringify(restError.response.data));
+      }
+      lastError = restError;
     }
   }
 
