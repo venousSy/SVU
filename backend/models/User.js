@@ -12,9 +12,12 @@ const userSchema = mongoose.Schema(
       unique: true,
     },
     password: {
-      type: String,
-      required: true,
+      type: String, // Optional for Google Auth
     },
+    authProvider: {
+      type: String,
+      default: 'local' // 'local', 'google', etc.
+    }
   },
   {
     timestamps: true,
