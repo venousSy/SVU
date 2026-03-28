@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import ExamRunner from '../components/ExamRunner';
+import SearchBar from '../components/SearchBar';
 import api from '../api';
 import './ResourceLibrary.css'; // Reuse existing styles
 
@@ -9,6 +10,7 @@ const SavedTests = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTest, setActiveTest] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     loadTests();
@@ -37,6 +39,8 @@ const SavedTests = () => {
         <p className="library-subtitle">Review previously generated exams and practice again without spending API credits.</p>
       </div>
 
+      <SearchBar onSearch={setSearchQuery} />
+
       {activeTest ? (
         <div style={{ marginTop: '2rem' }}>
           <button 
@@ -58,7 +62,9 @@ const SavedTests = () => {
         </div>
       ) : tests.length > 0 ? (
         <div className="materials-grid">
-          {tests.map((mockTest) => (
+          {tests
+            .filter(t => !searchQuery || t.materialId?.title?.toLowerCase().includes(searchQuery.toLowerCase()))
+            .map((mockTest) => (
             <div key={mockTest._id} className="card-container glass-panel" style={{ cursor: 'pointer' }} onClick={() => setActiveTest(mockTest.testContent)}>
               <div className="card-header">
                 <div className="card-icon">📝</div>
