@@ -63,6 +63,28 @@ Language: English.
 Constraints: 10 questions, 4 options (A, B, C, D), correct_answer, explanation, difficulty.
 JSON Only. No markdown blocks.
 
+MUST strictly follow this exact JSON schema:
+{
+  "test_metadata": {
+    "subject": "Topic Name Here"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "question_text": "...",
+      "options": {
+        "A": "...",
+        "B": "...",
+        "C": "...",
+        "D": "..."
+      },
+      "correct_answer": "A",
+      "explanation": "...",
+      "difficulty": "Easy"
+    }
+  ]
+}
+
 Input Text:
 ${text}
 `;
@@ -94,7 +116,7 @@ ${text}
       const restUrl = `https://generativelanguage.googleapis.com/v1beta/models/${fallbackModel}:generateContent?key=${apiKey}`;
       
       const restResponse = await axios.post(restUrl, {
-        contents: [{ parts: [{ text: `Generate a 10 question MCQ test in JSON based on this text:\n\n${text}` }] }]
+        contents: [{ parts: [{ text: prompt }] }]
       }, { timeout: 30000 });
 
       if (restResponse.data && restResponse.data.candidates) {

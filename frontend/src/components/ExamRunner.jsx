@@ -2,8 +2,26 @@ import React, { useState, useEffect, useMemo } from 'react';
 import './ExamRunner.css';
 
 const ExamRunner = ({ test, timeLimitMinutes = 10 }) => {
-  const { questions, test_metadata } = test;
-  
+  const questions = test?.questions || (Array.isArray(test) ? test : test?.test || []);
+  const test_metadata = test?.test_metadata || { subject: "Generated Test" };
+
+  if (!questions || questions.length === 0) {
+    return (
+      <div className="exam-runner-container">
+        <div className="exam-card results-view" style={{ textAlign: 'center' }}>
+          <h2>Invalid Test Format</h2>
+          <p style={{ color: '#94a3b8', margin: '1rem 0' }}>The AI generated a response, but it didn't match the expected format.</p>
+          <pre style={{ textAlign: 'left', background: 'rgba(0,0,0,0.5)', padding: '1rem', borderRadius: '8px', overflow: 'auto', fontSize: '12px' }}>
+            {JSON.stringify(test, null, 2)}
+          </pre>
+          <button className="btn btn-primary" style={{ marginTop: '2rem' }} onClick={() => window.location.reload()}>
+            Return to Materials
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // State
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
