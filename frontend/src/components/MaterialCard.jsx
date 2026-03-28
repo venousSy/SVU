@@ -20,9 +20,41 @@ const MaterialCard = ({ id, title, description, type, author, date, fileUrl, onT
     setIsGenerating(true);
     
     try {
+      // 1. Check if a test already exists for this material
+      try {
+        const existingTestRes = await api.get(`/tests/${id}`);
+        if (existingTestRes.data && existingTestRes.data.testContent) {
+          console.log('Found existing test, skipping generation');
+          onTestGenerated(existingTestRes.data.testContent);
+          setIsGenerating(false);
+          return;
+        }
+      } catch (checkErr) {
+        // 404 means not found, which is fine, proceed to generation
+        if (checkErr.response && checkErr.response.status !== 404) {
+             console.error('Error checking for existing test:', checkErr);
+        }
+      }
+
+      // 2. Generate test if not found (calling Gemini)
+      console.log('Generating new test...');
       const response = await api.post(`/materials/${id}/generate-test`);
+      
       if (response.data && response.data.test) {
-        onTestGenerated(response.data.test);
+        const generatedTest = response.data.test;
+        onTestGenerated(generatedTest);
+        
+        // 3. Save the newly generated test to db
+        try {
+          await api.post('/tests', {
+            materialId: id,
+            testContent: generatedTest
+          });
+          console.log('Saved newly generated test successfully');
+        } catch (saveErr) {
+          console.error('Error saving generated test:', saveErr);
+          // Non-blocking error, user still gets their test but it fails to save
+        }
       }
     } catch (err) {
       console.error('Error generating test:', err);

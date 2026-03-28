@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ResourceLibrary from './pages/ResourceLibrary';
 import AddMaterial from './pages/AddMaterial';
+import SavedTests from './pages/SavedTests';
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
         <Route path="/" element={<ResourceLibrary />} />
         <Route path="/library" element={<ResourceLibrary />} />
         <Route path="/add" element={<AddMaterial />} />
+        <Route path="/saved-tests" element={<SavedTests />} />
         <Route path="*" element={<ResourceLibrary />} /> {/* Fallback */}
       </Routes>
     </Router>

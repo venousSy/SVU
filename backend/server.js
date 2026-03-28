@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const materialRoutes = require('./routes/materialRoutes');
 const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const testRoutes = require('./routes/testRoutes');
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/api/materials', materialRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/tests', testRoutes);
 
 // Serve Frontend in Production
 const path = require('path');
