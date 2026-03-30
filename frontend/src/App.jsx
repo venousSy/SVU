@@ -5,12 +5,14 @@ import AddMaterial from './pages/AddMaterial';
 import SavedTests from './pages/SavedTests';
 import Login from './components/Login';
 
-// Using a fallback for now, best practice is to put this in VITE_GOOGLE_CLIENT_ID in .env
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId={clientId}>
+    // use_fedcm_for_prompt=false disables the newer FedCM API and uses the classic
+    // popup flow, which works reliably without extra server-side configuration.
+    <GoogleOAuthProvider clientId={clientId} onScriptLoadError={() => console.error('GSI script failed')}>
+
       <Router>
         <Routes>
           <Route path="/" element={<ResourceLibrary />} />
