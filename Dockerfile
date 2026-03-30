@@ -1,6 +1,10 @@
 # Stage 1: Build the React Application
 FROM node:22-alpine AS frontend-builder
 
+# Declare the build argument so Railway can inject it during docker build
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
 WORKDIR /app/frontend
 
 # Install frontend dependencies
@@ -8,7 +12,7 @@ COPY frontend/package*.json ./
 RUN npm config set legacy-peer-deps true
 RUN npm install
 
-# Build frontend
+# Build frontend (VITE_GOOGLE_CLIENT_ID is now embedded into the bundle)
 COPY frontend ./
 RUN npm run build
 
