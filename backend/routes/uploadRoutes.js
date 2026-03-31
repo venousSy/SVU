@@ -5,6 +5,7 @@ const { S3Client } = require('@aws-sdk/client-s3');
 const path = require('path');
 
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -32,7 +33,7 @@ const upload = multer({
   }),
 });
 
-router.post('/', upload.single('document'), (req, res) => {
+router.post('/', protect, upload.single('document'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'No file uploaded' });
   }

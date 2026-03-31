@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { createMaterial, uploadFile } from '../services/materialService';
+import { useAuth } from '../hooks/useAuth';
 import './AddMaterial.css';
 
 const AddMaterial = () => {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
+
+  // Redirect guests to login
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+  }, [isLoggedIn, navigate]);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -44,6 +54,8 @@ const AddMaterial = () => {
       setLoading(false);
     }
   };
+
+  if (!isLoggedIn) return null;
 
   return (
     <div>
