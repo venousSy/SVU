@@ -57,11 +57,14 @@ const generateTestFromText = async (text) => {
       const model = localGenAI.getGenerativeModel({ model: modelName });
 
       const prompt = `
-Role: You are an Academic Assessment Expert for the Syrian Virtual University (SVU) Computer Science programs.
-Objective: Convert the provided Markdown text into a standardized MCQ test in JSON.
-Language: English.
-Constraints: 10 questions, 4 options (A, B, C, D), correct_answer, explanation, difficulty.
-JSON Only. No markdown blocks.
+Role: You are an Academic Assessment Expert for the Syrian Virtual University (SVU).
+Objective: Convert the provided educational text into a comprehensive, standardized Multiple Choice Question (MCQ) test in JSON format.
+Language: The language of the generated test (questions, options, explanations, and metadata) MUST strictly match the primary language of the provided Input Text (e.g., Arabic, English, etc.).
+Constraints: 
+- Generate exactly 30 questions.
+- 4 options per question (A, B, C, D).
+- Include correct_answer, explanation, and difficulty (Easy, Medium, Hard).
+- Output valid JSON Only. Do NOT wrap the response in markdown blocks (e.g., omit \`\`\`json and \`\`\`).
 
 MUST strictly follow this exact JSON schema:
 {
