@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './Header.css';
 
@@ -7,19 +7,34 @@ const Header = () => {
   const [user, setUser] = useState(null);
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Check if user is logged in
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    } else {
+      setUser(null);
     }
-  }, []);
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
     navigate('/');
+  };
+
+  const isActive = (path) => {
+    if (path === '/library' && location.pathname === '/') return true;
+    return location.pathname === path;
+  };
+
+  const handleRestrictedAction = (e) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      navigate('/login');
+    }
   };
 
   return (
@@ -28,13 +43,27 @@ const Header = () => {
         <span className="logo-icon">▲</span> SVU ConnectHub
       </Link>
       <nav className="header-nav">
-        <Link to="/library" className="nav-link">Library</Link>
-        {isLoggedIn && (
-          <Link to="/saved-tests" className="nav-link">Saved Tests</Link>
-        )}
-        {isLoggedIn && (
-          <Link to="/add" className="btn-primary" style={{ marginRight: '1rem', textDecoration: 'none' }}>+ Add</Link>
-        )}
+        <Link 
+          to="/library" 
+          className={`nav-link ${isActive('/library') ? 'active' : ''}`}
+        >
+          Library
+        </Link>
+        <Link 
+          to="/saved-tests" 
+          className={`nav-link ${isActive('/saved-tests') ? 'active' : ''}`}
+          onClick={(e) => handleRestrictedAction(e)}
+        >
+          {isLoggedIn ? 'Saved Tests' : '🔒 Saved Tests'}
+        </Link>
+        <Link 
+          to="/add" 
+          className="btn-primary" 
+          style={{ marginRight: '1rem', textDecoration: 'none' }}
+          onClick={(e) => handleRestrictedAction(e)}
+        >
+          {isLoggedIn ? '+ Add' : '🔒 Add'}
+        </Link>
         {user ? (
           <div className="user-menu" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
              <span style={{ fontWeight: 500 }}>{user.name}</span>
