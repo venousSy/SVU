@@ -96,7 +96,7 @@ const MaterialCard = ({ id, title, description, type, author, date, fileUrl, onT
       {showExistingDialog && (
         <Modal
           title="Test Already Exists"
-          message={`There ${existingTestCount === 1 ? 'is already 1 test' : \`are already \${existingTestCount} tests\`} for this material. What would you like to do?`}
+          message={`There ${existingTestCount === 1 ? 'is already 1 test' : 'are already ' + existingTestCount + ' tests'} for this material. What would you like to do?`}
           onClose={closeDialogs}
         >
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
