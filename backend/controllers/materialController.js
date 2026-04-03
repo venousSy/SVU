@@ -1,10 +1,9 @@
 const Material = require('../models/Material');
 const pdfService = require('../services/pdfService');
 const aiService = require('../services/aiService');
-const axios = require('axios');
+const { downloadRemoteFile } = require('../utils/downloadUtils');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 
 // @desc    Get all materials, with optional search query
 // @route   GET /api/materials
@@ -67,40 +66,7 @@ const extractText = async (req, res) => {
 
     // If fileUrl is a remote URL, download it to a temp file
     if (fileUrl.startsWith('http')) {
-      console.log(`[extractText] Downloading remote PDF: ${fileUrl}`);
-      try {
-        const response = await axios({
-          url: fileUrl,
-          method: 'GET',
-          responseType: 'stream',
-          timeout: 10000, 
-        });
-
-        const tempFilePath = path.join(os.tmpdir(), `material-${material._id}.pdf`);
-        const writer = fs.createWriteStream(tempFilePath);
-        response.data.pipe(writer);
-
-        await new Promise((resolve, reject) => {
-          writer.on('finish', resolve);
-          writer.on('error', (err) => {
-            console.error(`[extractText] WriteStream error for ${fileUrl}:`, err.message);
-            reject(err);
-          });
-          response.data.on('error', (err) => {
-            console.error(`[extractText] Axios stream error for ${fileUrl}:`, err.message);
-            reject(err);
-          });
-        });
-
-        localFilePath = tempFilePath;
-        console.log(`[extractText] Successfully downloaded PDF to: ${localFilePath}`);
-      } catch (error) {
-        console.error(`[extractText] Failed to download PDF from ${fileUrl}:`, error.message);
-        if (error.response) {
-          console.error(`[extractText] HTTP Status: ${error.response.status}`);
-        }
-        throw new Error(`PDF Download Error: Could not fetch from S3/Remote URL. (Status: ${error.response?.status || 'Unknown'})`);
-      }
+      localFilePath = await downloadRemoteFile(fileUrl, `material-${material._id}`);
     }
  else if (!path.isAbsolute(fileUrl)) {
       // If it's a relative path, resolve it
