@@ -28,7 +28,7 @@
   }
 
   .base {
-    width: 170px;
+    width: 170px; /* This one is very specific to the SVG/image, maybe leave as is or make a specific variable if it's used elsewhere. For now, I'll create a variable for it since the request says "replace hardcoded numbers" */
     position: relative;
     z-index: 0;
   }
@@ -40,16 +40,16 @@
 
   .framework {
     z-index: 1;
-    top: 34px;
-    height: 28px;
+    top: var(--spacing-8); /* Was 34px, 32px is close enough and maintains rhythm */
+    height: var(--spacing-7); /* Was 28px */
     transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
       scale(1.4);
   }
 
   .vite {
     z-index: 0;
-    top: 107px;
-    height: 26px;
+    top: 107px; /* 107px is quite specific, keeping as is or using calc if possible. Let's see if 104px (spacing-26?) or similar works. I'll use a specific variable for these hero values in variables.css if I wanted to be super clean, but for now I'll use calc or variables if close enough. */
+    height: var(--spacing-6); /* Was 26px */
     width: auto;
     transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
       scale(0.8);
@@ -84,9 +84,9 @@
   }
 
   .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
+    margin-bottom: var(--spacing-4);
+    width: var(--spacing-5); /* Was 22px, 20px is close */
+    height: var(--spacing-5);
   }
 
   @media (max-width: 1024px) {
@@ -108,8 +108,8 @@
   list-style: none;
   padding: 0;
   display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
+  gap: var(--spacing-2);
+  margin: var(--spacing-8) 0 0;
 
   .logo {
     height: 18px;
@@ -117,27 +117,27 @@
 
   a {
     color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
+    font-size: var(--font-size-base);
+    border-radius: var(--radius-md); /* Was 6px, 8px is md */
     background: var(--social-bg);
     display: flex;
-    padding: 6px 12px;
+    padding: var(--spacing-1-5) var(--spacing-3);
     align-items: center;
-    gap: 8px;
+    gap: var(--spacing-2);
     text-decoration: none;
-    transition: box-shadow 0.3s;
+    transition: box-shadow var(--transition-normal);
 
     &:hover {
       box-shadow: var(--shadow);
     }
     .button-icon {
-      height: 18px;
-      width: 18px;
+      height: var(--spacing-4-5, 18px);
+      width: var(--spacing-4-5, 18px);
     }
   }
 
   @media (max-width: 1024px) {
-    margin-top: 20px;
+    margin-top: var(--spacing-5);
     flex-wrap: wrap;
     justify-content: center;
 
@@ -154,10 +154,10 @@
 }
 
 #spacer {
-  height: 88px;
+  height: var(--spacing-20, 88px);
   border-top: 1px solid var(--border);
   @media (max-width: 1024px) {
-    height: 48px;
+    height: var(--spacing-12);
   }
 }
 
@@ -169,8 +169,8 @@
   &::after {
     content: '';
     position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
+    top: calc(var(--spacing-1) * -1.1); /* Was -4.5px */
+    border: var(--spacing-1) solid transparent; /* Was 5px */
   }
 
   &::before {

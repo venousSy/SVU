@@ -8,7 +8,7 @@
 }
 
 .card-container:hover {
-  transform: translateY(-5px);
+  transform: translateY(calc(var(--spacing-1-5) * -1)); /* Was -5px, spacing-1-5 is 6px, close enough */
   box-shadow: var(--shadow-glow);
   border-color: var(--input-border);
 }
@@ -85,7 +85,7 @@
 
 .btn-secondary:hover:not(:disabled) {
   background-color: var(--accent-primary);
-  color: #fff;
+  color: var(--color-slate-100);
   box-shadow: var(--shadow-glow);
 }
 

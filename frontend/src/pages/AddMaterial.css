@@ -1,5 +1,5 @@
 .add-material-container {
-  padding: 8rem 2rem 2rem;
+  padding: var(--spacing-20, 8rem) var(--spacing-8) var(--spacing-8);
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -9,18 +9,19 @@
 .add-material-form-panel {
   width: 100%;
   max-width: 600px;
-  padding: 2.5rem;
-  border-radius: 20px;
+  padding: var(--spacing-10);
+  border-radius: var(--radius-xl);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--spacing-6);
 }
 
 .form-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(90deg, #bb6bf5, #7face1);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-2);
+  background: linear-gradient(90deg, #bb6bf5, #7face1); /* Unique gradient, keeping as is for now */
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -28,26 +29,26 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-2);
 }
 
 .form-group label {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
+  font-size: var(--font-size-sm);
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-  padding: 0.9rem 1rem;
-  border-radius: 12px;
+  padding: var(--spacing-3-5, 0.9rem) var(--spacing-4);
+  border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border);
   color: #fff;
   font-family: inherit;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  font-size: var(--font-size-base);
+  transition: var(--transition-normal);
 }
 
 .form-group input:focus,
@@ -60,7 +61,7 @@
 }
 
 .form-group select option {
-  background: #1a1a2e;
+  background: var(--color-slate-900);
   color: #fff;
 }
 
@@ -70,16 +71,16 @@
 }
 
 .submit-btn {
-  margin-top: 1rem;
-  padding: 1.1rem;
-  border-radius: 12px;
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-4-5, 1.1rem);
+  border-radius: var(--radius-lg);
   border: none;
   background: linear-gradient(135deg, #bb6bf5, #7face1);
   color: white;
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .submit-btn:hover:not(:disabled) {
