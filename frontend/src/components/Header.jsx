@@ -59,14 +59,14 @@ const Header = () => {
         <Link 
           to="/add" 
           className="btn-primary" 
-          style={{ marginRight: '1rem', textDecoration: 'none' }}
+          style={{ marginRight: 'var(--spacing-4)', textDecoration: 'none' }}
           onClick={(e) => handleRestrictedAction(e)}
         >
           {isLoggedIn ? '+ Add' : '🔒 Add'}
         </Link>
         {user ? (
-          <div className="user-menu" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-             <span style={{ fontWeight: 500 }}>{user.name}</span>
+          <div className="user-menu" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-4)' }}>
+             <span style={{ fontWeight: 'var(--font-weight-medium)' }}>{user.name}</span>
              <button onClick={handleLogout} className="btn-secondary">Logout</button>
           </div>
         ) : (

@@ -99,7 +99,7 @@ const MaterialCard = ({ id, title, description, type, author, date, fileUrl, onT
           message={`There ${existingTestCount === 1 ? 'is already 1 test' : 'are already ' + existingTestCount + ' tests'} for this material. What would you like to do?`}
           onClose={closeDialogs}
         >
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 'var(--spacing-4)', flexWrap: 'wrap' }}>
             <button className="btn-primary" style={{ flex: 1 }} onClick={handleGoToExisting}>
               View Existing Tests
             </button>
@@ -110,7 +110,7 @@ const MaterialCard = ({ id, title, description, type, author, date, fileUrl, onT
           <button
             onClick={closeDialogs}
             style={{
-              marginTop: '1rem', background: 'none', border: 'none',
+              marginTop: 'var(--spacing-4)', background: 'none', border: 'none',
               color: 'var(--color-text-secondary)', cursor: 'pointer',
               width: '100%', textAlign: 'center', fontSize: 'var(--font-size-sm)',
             }}
@@ -126,7 +126,7 @@ const MaterialCard = ({ id, title, description, type, author, date, fileUrl, onT
           message={limitErrorMsg}
           onClose={closeDialogs}
         >
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: 'var(--spacing-4)' }}>
             <button className="btn-primary" style={{ flex: 1 }} onClick={handleGoToExisting}>
               View Existing Tests
             </button>
